@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurante modelo</title>
+
+<link rel="stylesheet" href="./src/css/style.css">
+<link rel="stylesheet" href="./src/css/reset.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-utensils"></i>
+    </div>
+    <span class="logo-text">Sabor & Cia</span>
+  </div>
+
+  <nav class="menu">
+    <i class="fa-solid fa-bars menu-icon"></i>
+  </nav>
+</header>
+
+    <div class="menu-links">
+      <a href="#">Início</a>
+      <a href="#">Cardápio</a>
+      <a href="#">Destaques</a>
+      <a href="#">Contato</a>
+    </div>
+
+<section class="container">
+  <div class="overlay"></div>
+
+  <div class="content">
+    <h1>Bem-vindo ao Sabor & Cia</h1>
+    <p>Os melhores hambúrgueres, pizzas e pastéis da cidade.</p>
+    <button class="btn">Ver Cardápio</button>
+  </div>
+</section>
+
+<main class="main">
+
+  <h1 class="titulo">Por que escolher a gente?</h1>
+
+  <div class="icon"><i class="fa-solid fa-utensils"></i></div>
+  <h2 class="sub-titulo">Ingredientes Frescos</h2>
+  <p class="texto">Usamos apenas ingredientes frescos e de qualidade.</p>
+
+  <div class="icon"><i class="fa-solid fa-layer-group"></i></div>
+  <h2 class="sub-titulo">Grande Variedade</h2>
+  <p class="texto">Pizzas, hambúrgueres, pastéis e muito mais.</p>
+
+  <div class="icon"><i class="fa-solid fa-motorcycle"></i></div>
+  <h2 class="sub-titulo">Entrega Rápida</h2>
+  <p class="texto">Seu pedido chega quentinho até você.</p>
+
+</main>
+
+<div class="destaques">
+
+  <h1 class="titulo">Nossos Destaques</h1>
+
+  <div class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_182750.png">
+    <h2 class="sub-titulo"><i class="fa-solid fa-pizza-slice"></i>Pizzas</h2>
+    <p class="texto">Massa artesanal e ingredientes selecionados.</p>
+  </div>
+
+  <div class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_182816.png">
+    <h2 class="sub-titulo"><i class="fa-solid fa-burger"></i>Hambúrgueres</h2>
+    <p class="texto">Suculentos e preparados na hora.</p>
+  </div>
+
+  <div class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_182455.png">
+    <h2 class="sub-titulo"><i class="fa-solid fa-bread-slice"></i>Pastéis</h2>
+    <p class="texto">Crocantes e recheados generosamente.</p>
+  </div>
+
+  <div class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_183034.png">
+    <h2 class="sub-titulo"><i class="fa-solid fa-martini-glass"></i>Bebidas</h2>
+    <p class="texto">Refrescantes e ideais para sua refeição.</p>
+  </div>
+
+  <button class="btn">Ver Cardápio Completo</button>
+
+</div>
+
+<div class="contato">
+
+  <h2>Faça seu pedido agora!</h2>
+  <p>Entre em contato conosco:</p>
+
+  <div class="botoes-contato">
+    <button class="btn-tel"><i class="fa-solid fa-phone"></i>Telefone</button>
+    <button class="btn-whatsapp"><i class="fa-brands fa-whatsapp"></i>WhatsApp</button>
+  </div>
+
+</div>
+
+<footer class="footer">
+
+  <div class="logo-icon">
+      <i class="fa-solid fa-utensils"></i>
+  </div>
+  <h2>Sabor & Cia</h2>
+  <p>A melhor comida da cidade.</p>
+
+  <h3>Horário</h3>
+  <p>Segunda a Sexta: 18h - 23h</p>
+  <p>Sábado e Domingo: 12h - 00h</p>
+
+  <h3>Contato</h3>
+  <p>Telefone: (11) 1234-5678</p>
+  <p>WhatsApp: (11) 1234-5678</p>
+  <p>Instagram: @sabordecia</p>
+  <p>Email: contato@sabordecia.com</p>
+
+  <p class="copy">© 2024 Sabor & Cia</p>
+
+</footer>
+
+<script>
+const menuIcon = document.querySelector(".menu-icon");
+const menuLinks = document.querySelector(".menu-links");
+
+menuIcon.addEventListener("click", () => {
+  menuLinks.classList.toggle("active");
+});
+</script>
+
+<script src="./src/js/index.js"></script>
+
+</body>
+</html>
