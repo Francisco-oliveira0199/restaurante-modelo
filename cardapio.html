@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardápio - Sabor & Cia</title>
+
+<link rel="stylesheet" href="./src/css/reset.css">
+<link rel="stylesheet" href="./src/css/header.css">
+<link rel="stylesheet" href="./src/css/footer.css">
+<link rel="stylesheet" href="./src/css/cardapio.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-utensils"></i>
+    </div>
+    <span class="logo-text">Sabor & Cia</span>
+  </div>
+
+  <nav class="menu">
+    <button class="menu-icon">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </nav>
+</header>
+
+<div class="menu-links">
+  <a href="index.html">Início</a>
+  <a href="#" class="active-link">Cardápio</a>
+  <a href="index.html#destaques">Destaques</a>
+  <a href="index.html#contato">Contato</a>
+</div>
+
+<main class="cardapio">
+
+<h1>Nosso Cardápio</h1>
+<p class="sub">Escolha entre nossos deliciosos pratos</p>
+
+<!-- CATEGORIAS -->
+<div class="categorias">
+
+  <div class="linha-topo">
+    <button class="categoria-btn active" data-id="pizzas">
+      <i class="fa-solid fa-pizza-slice"></i>
+      <span>Pizzas</span>
+    </button>
+
+    <button class="categoria-btn" data-id="pasteis">
+      <i class="fa-solid fa-bread-slice"></i>
+      <span>Pastéis</span>
+    </button>
+
+    <button class="categoria-btn" data-id="hamburgueres">
+      <i class="fa-solid fa-burger"></i>
+      <span>Hambúrgueres</span>
+    </button>
+  </div>
+
+  <div class="linha-baixo">
+    <button class="categoria-btn" data-id="sucos">
+      <i class="fa-solid fa-glass-water"></i>
+      <span>Sucos</span>
+    </button>
+
+    <button class="categoria-btn" data-id="bebidas">
+      <i class="fa-solid fa-martini-glass"></i>
+      <span>Bebidas</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- CONTAINER -->
+<div class="cardapio-container">
+<div class="conteudo">
+
+<!-- PIZZAS -->
+<div class="categoria active" id="pizzas">
+
+<div class="categoria-header">
+<i class="fa-solid fa-pizza-slice"></i>
+<h2>Pizzas</h2>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Margherita</h3>
+<span>R$ 45,00</span>
+</div>
+<p>Molho de tomate, mussarela e manjericão</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Calabresa</h3>
+<span>R$ 48,00</span>
+</div>
+<p>Molho de tomate, mussarela, calabresa e cebola</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Quatro Queijos</h3>
+<span>R$ 52,00</span>
+</div>
+<p>Mussarela, parmesão, gorgonzola e provolone</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Portuguesa</h3>
+<span>R$ 50,00</span>
+</div>
+<p>Presunto, ovos, cebola, azeitona e ervilha</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Frango com Catupiry</h3>
+<span>R$ 49,00</span>
+</div>
+<p>Frango desfiado com catupiry</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Pepperoni</h3>
+<span>R$ 52,00</span>
+</div>
+<p>Molho de tomate, mussarela e pepperoni</p>
+</div>
+
+</div>
+
+<!-- PASTÉIS -->
+<div class="categoria" id="pasteis">
+
+<div class="categoria-header">
+<i class="fa-solid fa-bread-slice"></i>
+<h2>Pastéis</h2>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Pastel de Carne</h3>
+<span>R$ 8,00</span>
+</div>
+<p>Carne moída temperada</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Pastel de Queijo</h3>
+<span>R$ 7,00</span>
+</div>
+<p>Mussarela derretida</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Pastel de Pizza</h3>
+<span>R$ 9,00</span>
+</div>
+<p>Presunto, mussarela e orégano</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Pastel de Frango</h3>
+<span>R$ 10,00</span>
+</div>
+<p>Frango desfiado com catupiry</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Pastel de Palmito</h3>
+<span>R$ 11,00</span>
+</div>
+<p>Palmito e mussarela</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Pastel de Carne com Queijo</h3>
+<span>R$ 10,00</span>
+</div>
+<p>Carne moída temperada com mussarela</p>
+</div>
+
+</div>
+
+<!-- HAMBÚRGUERES -->
+<div class="categoria" id="hamburgueres">
+
+<div class="categoria-header">
+<i class="fa-solid fa-burger"></i>
+<h2>Hambúrgueres</h2>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>X-Burger</h3>
+<span>R$ 20,00</span>
+</div>
+<p>Hambúrguer, queijo, alface, pão, tomate e maionese</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>X-Salada</h3>
+<span>R$ 28,00</span>
+</div>
+<p>Hambúrguer, queijo, presunto, alface, tomate e milho</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>X-Bacon</h3>
+<span>R$ 32,00</span>
+</div>
+<p>Hambúrguer, queijo, bacon crocante e molho especial</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>X-Egg</h3>
+<span>R$ 30,00</span>
+</div>
+<p>Hambúrguer, queijo, ovo, bacon e maionese</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>X-Tudo</h3>
+<span>R$ 38,00</span>
+</div>
+<p>Duplo hambúrguer, queijo, bacon, ovo, calabresa e salada</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Smash Burguer</h3>
+<span>R$ 35,00</span>
+</div>
+<p>Duplo smash, queijo cheddar, cebola caramelizada e molho</p>
+</div>
+
+
+</div>
+
+<!-- SUCOS -->
+<div class="categoria" id="sucos">
+
+<div class="categoria-header">
+<i class="fa-solid fa-glass-water"></i>
+<h2>Sucos</h2>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Suco de Laranja</h3>
+<span>R$ 8,00</span>
+</div>
+<p>Suco natural de laranja - 500ml</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Suco de Limão</h3>
+<span>R$ 8,00</span>
+</div>
+<p>Suco natural de limão - 500ml</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Suco de Maracujá</h3>
+<span>R$ 8,00</span>
+</div>
+<p>Suco natural de maracujá - 500ml</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Suco de Abacaxi</h3>
+<span>R$ 8,00</span>
+</div>
+<p>Suco natural de abacaxi - 500ml</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Suco de Melancia</h3>
+<span>R$ 8,00</span>
+</div>
+<p>Suco natural de melancia - 500ml</p>
+</div>
+
+</div>
+
+<!-- BEBIDAS -->
+<div class="categoria" id="bebidas">
+
+<div class="categoria-header">
+<i class="fa-solid fa-martini-glass"></i>
+<h2>Bebidas</h2>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Coca-Cola Lata</h3>
+<span>R$ 6,00</span>
+</div>
+<p>350ml</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Coca-Cola</h3>
+<span>R$ 10,00</span>
+</div>
+<p>1 Litro</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Guaraná Antartica Lata</h3>
+<span>R$ 6,00</span>
+</div>
+<p>350ml</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Fanta Laranja</h3>
+<span>R$ 6,00</span>
+</div>
+<p>350ml</p>
+</div>
+
+<div class="item">
+<div class="top">
+<h3>Água Mineral</h3>
+<span>R$ 4,00</span>
+</div>
+<p>500ml</p>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</main>
+
+<!-- CONTATOS -->
+<div class="contatos">
+
+<p>Os preços podem variar. Entre em contato para fazer seu pedido.</p>
+
+<button class="btn-contato tel" onclick="ligar()">
+<i class="fa-solid fa-phone"></i> Telefone
+</button>
+
+<button class="btn-contato whats" onclick="whatsapp()">
+<i class="fa-brands fa-whatsapp"></i> WhatsApp
+</button>
+
+</div>
+
+<footer class="footer">
+
+  <div class="footer-top">
+    <div class="logo-icon">
+      <i class="fa-solid fa-utensils"></i>
+    </div>
+    <h2>Sabor & Cia</h2>
+  </div>
+
+  <p>A melhor comida da cidade.</p>
+
+  <h3>Horário</h3>
+  <p>Segunda a Sexta: 18h - 23h</p>
+  <p>Sábado e Domingo: 12h - 00h</p>
+
+  <h3>Contato</h3>
+  <p>Telefone: (11) 1234-5678</p>
+  <p>WhatsApp: (11) 1234-5678</p>
+  <p>Instagram: @sabordecia</p>
+  <p>Email: contato@sabordecia.com</p>
+
+  <p class="copy">© 2024 Sabor & Cia</p>
+
+</footer>
+
+<script src="./src/js/index.js"></script>
+
+<script>
+const botoes = document.querySelectorAll(".categoria-btn");
+const categorias = document.querySelectorAll(".categoria");
+
+botoes.forEach(btn => {
+btn.addEventListener("click", () => {
+
+botoes.forEach(b => b.classList.remove("active"));
+btn.classList.add("active");
+
+const id = btn.dataset.id;
+
+categorias.forEach(cat => cat.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+
+});
+});
+</script>
+
+</body>
+</html>

@@ -4,88 +4,19 @@
     --text-dark: #1f2937;
     --text-medium: #6B7280;
     --white: #ffffff;
-    --bg-light: #f9fafb;
-    --footer-bg: #030303;
     --overlay: rgba(0, 0, 0, 0.4);
     --green: #16a34a;
 }
 
-/* RESET BASE */
+/* ================= BASE ================= */
 body {
     font-family: 'Poppins', sans-serif;
-}
-
-/* ================= HEADER ================= */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.logo-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-}
-
-/* MENU */
-.menu {
-    position: relative;
-}
-
-.menu-icon {
-    cursor: pointer;
-    font-size: 20px;
-}
-
-.menu-links {
-    width: 100%;
-    display: none;
-    flex-direction: column;
-    background: var(--white);
-    border-radius: 0 0 12px 12px;
-    padding: 10px 0;
-}
-
-.menu-links a.active-link {
-    background: var(--primary-light);
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.menu-links::before {
-    content: "";
-    height: 4px;
-    background: var(--primary-color);
-    border-radius: 10px 10px 0 0;
-    display: block;
-}
-
-.menu-links a {
-    padding: 12px 20px;
-    text-decoration: none;
-    color: var(--text-dark);
-    text-align: left;
-}
-
-.menu-links a:hover {
-    background: var(--bg-light);
+    margin: 0;
 }
 
 /* ================= HERO ================= */
 .container {
+    margin-top: 70px;
     position: relative;
     height: 350px;
     background: url('../imagens/IMG_20260330_183424.png') center/cover no-repeat;
@@ -104,35 +35,59 @@ body {
     position: relative;
     color: white;
     padding: 20px;
+
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-/* BOTÕES */
+/* ================= BOTÕES ================= */
 .btn {
+    display: inline-block;
     background: var(--primary-color);
     color: white;
-    padding: 12px;
+    padding: 12px 16px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
 }
 
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* 🔥 WHATSAPP */
 .btn-whatsapp {
+    display: inline-block;
     background: var(--green);
     color: white;
-    padding: 12px;
+    padding: 12px 16px;
     border-radius: 8px;
+    text-decoration: none;
     border: none;
+    cursor: pointer;
+    outline: none; /* 🔥 remove contorno */
 }
 
+/* 🔥 TELEFONE */
 .btn-tel {
+    display: inline-block;
     background: var(--white);
     color: var(--primary-color);
-    padding: 12px;
+    padding: 12px 16px;
     border-radius: 8px;
+    text-decoration: none;
     border: none;
+    cursor: pointer;
+    outline: none; /* 🔥 remove contorno */
+}
+
+/* 🔥 foco bonito (opcional mas profissional) */
+.btn-whatsapp:focus,
+.btn-tel:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
 }
 
 /* ================= MAIN ================= */
@@ -146,7 +101,16 @@ body {
     gap: 25px;
 }
 
-/* ÍCONE EM CÍRCULO */
+.titulo {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.sub-titulo {
+    font-size: 18px;
+    font-weight: 500;
+}
+
 .icon i {
     background: var(--primary-light);
     color: var(--primary-color);
@@ -163,12 +127,6 @@ body {
     font-size: 20px;
 }
 
-/* SUBTÍTULO */
-.main .sub-titulo {
-    font-weight: 600;
-}
-
-/* TEXTO */
 .texto {
     color: var(--text-medium);
     font-size: 14px;
@@ -177,32 +135,40 @@ body {
 /* ================= DESTAQUES ================= */
 .destaques {
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
+
     padding: 30px 20px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-}
-
-.destaques h1 {
-    text-align: center;
+    gap: 25px;
 }
 
 /* CARD */
 .destaque-item {
+    display: block;
     width: 100%;
     background: var(--white);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+    text-decoration: none;
+    color: inherit;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.destaque-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
 .destaque-item img {
     width: 100%;
-    height: 240px;
+    height: 260px;
     object-fit: cover;
 }
 
@@ -210,12 +176,11 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    text-align: left;
+
     padding: 15px 15px 5px;
 }
 
 .destaque-item p {
-    text-align: left;
     padding: 0 15px 15px;
 }
 
@@ -223,18 +188,16 @@ body {
     color: var(--primary-color);
 }
 
-/* BOTÃO */
-.destaques button {
-    margin: 40px 0;
+.destaques .btn {
+    margin: 50px 0;
 }
 
 /* ================= CONTATO ================= */
 .contato {
     background: var(--primary-color);
     color: white;
-    padding: 30px 20px;
 
-    text-align: center;
+    padding: 40px 20px;
 
     display: flex;
     flex-direction: column;
@@ -245,28 +208,4 @@ body {
 .botoes-contato {
     display: flex;
     gap: 10px;
-}
-
-/* ================= FOOTER ================= */
-.footer {
-    display: flex;
-    flex-direction: column;
-    background: var(--footer-bg);
-    color: white;
-    padding: 20px;
-}
-
-.footer h3 {
-    margin: 10px 0;
-}
-
-.footer p {
-    margin: 5px 0;
-}
-
-.footer .copy {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 13px;
-    color: var(--text-medium);
 }

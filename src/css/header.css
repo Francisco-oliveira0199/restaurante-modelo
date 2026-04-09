@@ -1,0 +1,143 @@
+:root {
+    --primary-color: #f59e0b;
+    --primary-light: #fcd34d;
+    --text-dark: #1f2937;
+    --text-medium: #6B7280;
+    --white: #ffffff;
+}
+
+/* ================= HEADER ================= */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--white);
+    z-index: 1000;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* LOGO */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+}
+
+.logo-text {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* ================= BOTÃO MENU ================= */
+.menu-icon {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* remove estilos padrão feios do botão */
+.menu-icon:focus,
+.menu-icon:active {
+    outline: none;
+    box-shadow: none;
+}
+
+/* ÍCONE */
+.menu-icon i {
+    font-size: 22px;
+    transition: 0.3s;
+}
+
+/* animação */
+.menu-icon.active i {
+    transform: rotate(90deg);
+}
+
+/* ================= MENU ================= */
+.menu-links {
+    position: fixed; /* 🔥 mantém no topo sempre */
+    top: 70px;       /* abaixo do header */
+    left: 0;
+    width: 100%;
+
+    background: var(--white);
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 10px;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+
+    /* animação */
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+
+    transition: all 0.3s ease;
+
+    z-index: 999;
+}
+
+/* ABERTO */
+.menu-links.active {
+    max-height: 300px;
+    opacity: 1;
+}
+
+/* LINKS */
+.menu-links a {
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--text-dark);
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+/* HOVER */
+.menu-links a:hover {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+/* ATIVO */
+.menu-links a.active-link {
+    background: var(--primary-color);
+    color: var(--white);
+    font-weight: 600;
+}
+
+/* 🔥 CORREÇÃO BUG MENU FECHADO */
+.menu-links:not(.active) {
+    pointer-events: none;
+}
+
+.menu-links:not(.active) a {
+    background: transparent !important;
+    color: var(--text-dark) !important;
+}

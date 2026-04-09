@@ -5,16 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Restaurante modelo</title>
 
-<link rel="stylesheet" href="./src/css/style.css">
 <link rel="stylesheet" href="./src/css/reset.css">
+<link rel="stylesheet" href="./src/css/header.css">
+<link rel="stylesheet" href="./src/css/footer.css">
+<link rel="stylesheet" href="./src/css/style.css">
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header class="header">
   <div class="logo">
     <div class="logo-icon">
@@ -24,27 +26,32 @@
   </div>
 
   <nav class="menu">
-    <i class="fa-solid fa-bars menu-icon"></i>
+    <button class="menu-icon">
+      <i class="fa-solid fa-bars"></i>
+    </button>
   </nav>
 </header>
 
-    <div class="menu-links">
-      <a href="#">Início</a>
-      <a href="#">Cardápio</a>
-      <a href="#">Destaques</a>
-      <a href="#">Contato</a>
-    </div>
+<!-- MENU DROPDOWN -->
+<div class="menu-links">
+  <a href="#" class="active-link">Início</a>
+  <a href="cardapio.html">Cardápio</a>
+  <a href="index.html#destaques">Destaques</a>
+  <a href="index.html#contato">Contato</a>
+</div>
 
+<!-- HERO -->
 <section class="container">
   <div class="overlay"></div>
 
   <div class="content">
     <h1>Bem-vindo ao Sabor & Cia</h1>
     <p>Os melhores hambúrgueres, pizzas e pastéis da cidade.</p>
-    <button class="btn">Ver Cardápio</button>
+   <a href="cardapio.html" class="btn">Ver Cardápio</a>
   </div>
 </section>
 
+<!-- MAIN -->
 <main class="main">
 
   <h1 class="titulo">Por que escolher a gente?</h1>
@@ -57,62 +64,81 @@
   <h2 class="sub-titulo">Grande Variedade</h2>
   <p class="texto">Pizzas, hambúrgueres, pastéis e muito mais.</p>
 
-  <div class="icon"><i class="fa-solid fa-motorcycle"></i></div>
+  <div class="icon"><i class="fa-solid fa-truck-fast"></i></div>
   <h2 class="sub-titulo">Entrega Rápida</h2>
   <p class="texto">Seu pedido chega quentinho até você.</p>
 
 </main>
 
-<div class="destaques">
+<!-- DESTAQUES -->
+<section class="destaques">
 
   <h1 class="titulo">Nossos Destaques</h1>
 
-  <div class="destaque-item">
-    <img src="./src/imagens/IMG_20260330_182750.png">
-    <h2 class="sub-titulo"><i class="fa-solid fa-pizza-slice"></i>Pizzas</h2>
+  <a href="cardapio.html?categoria=pizzas" class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_182750.png" alt="pizza">
+    <h2 class="sub-titulo">
+      <i class="fa-solid fa-pizza-slice"></i> Pizzas
+    </h2>
     <p class="texto">Massa artesanal e ingredientes selecionados.</p>
-  </div>
+  </a>
 
-  <div class="destaque-item">
-    <img src="./src/imagens/IMG_20260330_182816.png">
-    <h2 class="sub-titulo"><i class="fa-solid fa-burger"></i>Hambúrgueres</h2>
+  <a href="cardapio.html?categoria=hamburgueres" class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_182816.png" alt="hamburguer">
+    <h2 class="sub-titulo">
+      <i class="fa-solid fa-burger"></i> Hambúrgueres
+    </h2>
     <p class="texto">Suculentos e preparados na hora.</p>
-  </div>
+  </a>
 
-  <div class="destaque-item">
-    <img src="./src/imagens/IMG_20260330_182455.png">
-    <h2 class="sub-titulo"><i class="fa-solid fa-bread-slice"></i>Pastéis</h2>
+  <a href="cardapio.html?categoria=pasteis" class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_182455.png" alt="pastel">
+    <h2 class="sub-titulo">
+      <i class="fa-solid fa-bread-slice"></i> Pastéis
+    </h2>
     <p class="texto">Crocantes e recheados generosamente.</p>
-  </div>
+  </a>
 
-  <div class="destaque-item">
-    <img src="./src/imagens/IMG_20260330_183034.png">
-    <h2 class="sub-titulo"><i class="fa-solid fa-martini-glass"></i>Bebidas</h2>
+  <a href="cardapio.html?categoria=sucos" class="destaque-item">
+    <img src="./src/imagens/IMG_20260330_183034.png" alt="bebidas">
+    <h2 class="sub-titulo">
+      <i class="fa-solid fa-martini-glass"></i> Bebidas
+    </h2>
     <p class="texto">Refrescantes e ideais para sua refeição.</p>
-  </div>
+  </a>
 
-  <button class="btn">Ver Cardápio Completo</button>
+  <a href="cardapio.html" class="btn">Ver Cardápio Completo</a>
 
-</div>
+</section>
 
-<div class="contato">
+<!-- CONTATO -->
+<section class="contato">
 
   <h2>Faça seu pedido agora!</h2>
   <p>Entre em contato conosco:</p>
 
   <div class="botoes-contato">
-    <button class="btn-tel"><i class="fa-solid fa-phone"></i>Telefone</button>
-    <button class="btn-whatsapp"><i class="fa-brands fa-whatsapp"></i>WhatsApp</button>
+    <button class="btn-contato tel" onclick="ligar()">
+      <i class="fa-solid fa-phone"></i> Telefone
+    </button>
+
+    <button class="btn-contato whats" onclick="whatsapp()">
+      <i class="fa-brands fa-whatsapp"></i> WhatsApp
+    </button>
   </div>
 
-</div>
+</section>
 
+<!-- FOOTER -->
 <footer class="footer">
 
-  <div class="logo-icon">
+  <div class="footer-top">
+    <div class="logo-icon">
       <i class="fa-solid fa-utensils"></i>
+    </div>
+    <h2>Sabor & Cia</h2>
   </div>
-  <h2>Sabor & Cia</h2>
+
   <p>A melhor comida da cidade.</p>
 
   <h3>Horário</h3>
@@ -129,15 +155,7 @@
 
 </footer>
 
-<script>
-const menuIcon = document.querySelector(".menu-icon");
-const menuLinks = document.querySelector(".menu-links");
-
-menuIcon.addEventListener("click", () => {
-  menuLinks.classList.toggle("active");
-});
-</script>
-
+<!-- JS -->
 <script src="./src/js/index.js"></script>
 
 </body>

@@ -1,0 +1,32 @@
+:root {
+    --footer-bg: #030303;
+    --text-medium: #6B7280;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    background: var(--footer-bg);
+    color: white;
+    padding: 25px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer h3 {
+    margin-top: 10px;
+}
+
+.footer .copy {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 13px;
+    color: var(--text-medium);
+}
