@@ -1,0 +1,312 @@
+.carrinho-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    padding-top: 10px;
+}
+
+.carrinho-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 20px 10px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.carrinho-titulo i {
+    color: var(--primary-color);
+    font-size: 22px;
+}
+
+.carrinho-total {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 20px 24px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+
+    color: var(--text-dark);
+
+    border-top: 1px solid #ececec;
+}
+
+#totalCarrinho {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* ITEM */
+.carrinho-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+
+    padding: 18px;
+
+    background: #f8fafc;
+
+    border: 1px solid #ececec;
+    border-radius: 16px;
+}
+
+/* INFO */
+.carrinho-item .info {
+    flex: 1;
+    text-align: left;
+}
+
+.carrinho-item .info strong {
+    display: block;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    color: var(--text-dark);
+
+    margin-bottom: 8px;
+}
+
+.carrinho-item .info p {
+    margin: 4px 0;
+
+    font-size: 14px;
+    line-height: 1.4;
+
+    color: var(--text-medium);
+}
+
+/* AÇÕES */
+.carrinho-item .acoes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* QUANTIDADE */
+.qtd {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: white;
+
+    padding: 6px 10px;
+
+    border-radius: 12px;
+    border: 1px solid #ececec;
+}
+
+.qtd button {
+    width: 28px;
+    height: 28px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--primary-color);
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.qtd span {
+    min-width: 18px;
+
+    text-align: center;
+
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* REMOVER */
+.remover {
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #fee2e2;
+    color: #dc2626;
+
+    cursor: pointer;
+
+    font-size: 16px;
+}
+
+/* CARRINHO VAZIO */
+.carrinho-lista p {
+    text-align: center;
+
+    color: var(--text-medium);
+
+    padding: 30px 0;
+
+    font-size: 15px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 480px) {
+
+    .carrinho-item {
+        flex-direction: column;
+    }
+
+    .carrinho-item .acoes {
+        width: 100%;
+
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+}
+
+/* ================= AÇÕES ================= */
+
+.acoes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.acoes-topo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ================= QUANTIDADE ================= */
+
+.qtd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qtd button {
+    width: 30px;
+    height: 30px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--primary-color);
+    color: white;
+
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.qtd span {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* ================= REMOVER ================= */
+
+.remover {
+    width: 32px;
+    height: 32px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #ef4444;
+    color: white;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= COMPRAR ITEM ================= */
+
+.btn-comprar-item {
+    border: none;
+    border-radius: 10px;
+
+    padding: 10px 14px;
+
+    background: var(--green);
+    color: white;
+
+    font-weight: 600;
+    cursor: pointer;
+
+    width: 100%;
+}
+
+/* ================= COMPRAR TUDO ================= */
+
+.btn-comprar-tudo {
+    width: 80%;
+    margin-top: 20px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 0;
+}
+
+.btn-limpar-carrinho {
+    margin-top: 10px;
+    padding: 14px;
+    width: 80%;
+    border: none;
+    border-radius: 10px;
+    background: #dc2626;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+    display: block;
+    margin: 20px auto 0;
+}
+
+.btn-limpar-carrinho:hover {
+    background: #b91c1c;
+}
+
+.fechar-x {
+
+  position: absolute;
+
+  top: 15px;
+
+  right: 15px;
+
+  z-index: 999;
+
+  border: none;
+
+  background: transparent;
+
+  color: #222;
+
+  font-size: 24px;
+
+  cursor: pointer;
+
+}

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Entrar | Sabor & Cia</title>
+
+<link rel="stylesheet" href="./src/css/login.css">
+
+<link
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+rel="stylesheet"
+/>
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+<div class="login-card">
+
+<h1>Sabor & Cia</h1>
+
+<p>
+Entre na sua conta ou crie uma nova.
+</p>
+
+<div class="tabs">
+
+<button
+id="btnLogin"
+class="tab active"
+>
+Entrar
+</button>
+
+<button
+id="btnCadastro"
+class="tab"
+>
+Cadastrar
+</button>
+
+</div>
+
+<form id="formLogin">
+
+<input
+type="email"
+placeholder="Email"
+id="loginEmail"
+required
+>
+
+<input
+type="password"
+placeholder="Senha"
+id="loginSenha"
+required
+>
+
+<button type="submit">
+Entrar
+</button>
+
+</form>
+
+<form
+id="formCadastro"
+style="display:none;"
+>
+
+<input
+type="text"
+placeholder="Nome completo"
+id="cadastroNome"
+required
+>
+
+<input
+type="email"
+placeholder="Email"
+id="cadastroEmail"
+required
+>
+
+<input
+type="password"
+placeholder="Senha"
+id="cadastroSenha"
+required
+>
+
+<button type="submit">
+Criar Conta
+</button>
+
+</form>
+
+<div class="divisor">
+ou
+</div>
+
+<button
+id="googleLogin"
+class="google-btn"
+>
+
+<i class="fa-brands fa-google"></i>
+
+Entrar com Google
+
+</button>
+
+</div>
+
+</div>
+
+<script
+type="module"
+src="./src/js/login.js"
+></script>
+
+</body>
+</html>

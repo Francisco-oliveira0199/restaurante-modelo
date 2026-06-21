@@ -3,12 +3,10 @@
     --text-medium: #6B7280;
 }
 
-/* ================= FOOTER ================= */
 .footer {
     background: var(--footer-bg);
     color: white;
     padding: 25px;
-
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -29,4 +27,30 @@
     margin-top: 15px;
     font-size: 13px;
     color: var(--text-medium);
+}
+
+.footer p,
+.footer h2,
+.footer h3 {
+    margin: 0;
+    line-height: 1.4;
+}
+
+.footer-icon {
+    color: white;
+    margin-right: 8px;
+    width: 16px;
+}
+
+.footer-link {
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+
+.footer-link:hover {
+    opacity: 0.8;
 }

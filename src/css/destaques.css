@@ -1,0 +1,166 @@
+.destaques {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    text-align: center;
+}
+
+.carousel-wrapper {
+    overflow: hidden;
+    width: 100%;
+}
+
+.carousel-track {
+    display: flex;
+    width: 100%;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.destaque-item {
+    min-width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 10px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.img-box {
+    height: 280px;
+    overflow: hidden;
+    border-radius: 0;
+     border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+}
+
+.img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-info {
+    margin-top: 0;
+    background: var(--white);
+    padding: 20px;
+    border-radius: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+}
+
+.titulo-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.titulo-card i {
+    color: var(--primary-color);
+}
+
+.prev,
+.next {
+    position: absolute;
+    top: 43%;
+    transform: translateY(-50%);
+    z-index: 20;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+.indicadores {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.indicadores div {
+    width: 10px;
+    height: 10px;
+    background: #ccc;
+    border-radius: 50%;
+}
+
+.indicadores .ativo {
+    background: var(--primary-color);
+}
+
+.center {
+    display: block;
+    margin: 20px auto;
+}
+
+
+@media (max-width: 768px) {
+
+    .destaque-item {
+        border-radius: 14px;
+    }
+
+    .img-box {
+        height: 150px; 
+    }
+
+    .img-box img {
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-info {
+        padding: 12px;
+    }
+
+    .titulo-card {
+        margin-bottom: 4px;
+        gap: 6px;
+    }
+
+    .titulo-card h2 {
+        font-size: 18px;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .card-info p {
+        margin-top: 2px;
+        font-size: 13px;
+        line-height: 1.3;
+    }
+
+    .prev,
+    .next {
+        width: 38px;
+        height: 38px;
+        top: 42%;
+        font-size: 14px;
+    }
+
+    .prev {
+        left: 6px;
+    }
+
+    .next {
+        right: 6px;
+    }
+
+}
