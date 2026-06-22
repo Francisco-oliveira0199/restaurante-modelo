@@ -5,8 +5,31 @@ import {
   diminuir,
   remover
 } from "../controllers/carrinhoController.js";
-import { abrirConfig } from "../controllers/modalController.js";
+
 import { modalState } from "../state/modalState.js";
+
+async function openConfig(nome, preco, sabor) {
+  try {
+    if (typeof window !== "undefined" && typeof window.openModal === "function") {
+      window.openModal(nome, preco, sabor);
+      return;
+    }
+
+    const mod = await import("../controllers/modalController.js");
+    if (mod && typeof mod.abrirConfig === "function") {
+      mod.abrirConfig(nome, preco, sabor);
+      return;
+    }
+    if (mod && mod.default && typeof mod.default.abrirConfig === "function") {
+      mod.default.abrirConfig(nome, preco, sabor);
+      return;
+    }
+  } catch (e) {
+    console.warn("openConfig: não foi possível abrir modal dinamicamente", e);
+  }
+
+  console.warn("openConfig: nenhuma implementação de modal disponível");
+}
 
 function atualizarCarrinhoUI() {
   const container = document.getElementById("carrinhoLista");
@@ -15,10 +38,10 @@ function atualizarCarrinhoUI() {
   if (!container || !totalEl) return;
 
   if (carrinho.getItens().length === 0) {
-  container.innerHTML = "<p>Seu carrinho está vazio</p>";
-  totalEl.innerText = "R$ 0,00";
-  return;
-}
+    container.innerHTML = "<p>Seu carrinho está vazio</p>";
+    totalEl.innerText = "R$ 0,00";
+    return;
+  }
 
   let html = "";
 
@@ -56,7 +79,7 @@ function atualizarCarrinhoUI() {
       extrasHTML += `<p>Extras: ${item.extras.map(e => String(e)).join(", ")}</p>`;
     }
 
-     html += `
+    html += `
       <div class="carrinho-item">
 
         <div class="info">
@@ -70,20 +93,20 @@ function atualizarCarrinhoUI() {
   <div class="acoes-topo">
 
     <div class="qtd">
-      <button onclick="diminuir(${index})">-</button>
+      <button data-action="diminuir" data-index="${index}">-</button>
 
       <span>${item.quantidade}</span>
 
-      <button onclick="aumentar(${index})">+</button>
+      <button data-action="aumentar" data-index="${index}">+</button>
     </div>
 
-    <button class="remover" onclick="remover(${index})">
+    <button class="remover" data-action="remover" data-index="${index}">
       <i class="fa-solid fa-trash"></i>
     </button>
 
   </div>
 
-  <button class="btn-comprar-item" onclick="comprarItem(${index})">
+  <button class="btn-comprar-item" data-action="comprar-item" data-index="${index}">
     Comprar
   </button>
 
@@ -96,22 +119,35 @@ function atualizarCarrinhoUI() {
   container.innerHTML = html;
 
   totalEl.innerText = `R$ ${total.toFixed(2).replace(".", ",")}`;
+
+  container.querySelectorAll("button[data-action]").forEach(btn => {
+    const action = btn.dataset.action;
+    const idx = Number(btn.dataset.index);
+    if (action === "aumentar") {
+      btn.addEventListener("click", () => aumentar(idx));
+    } else if (action === "diminuir") {
+      btn.addEventListener("click", () => diminuir(idx));
+    } else if (action === "remover") {
+      btn.addEventListener("click", () => remover(idx));
+    } else if (action === "comprar-item") {
+      btn.addEventListener("click", () => comprarItem(idx));
+    }
+  });
 }
 
 export { atualizarCarrinhoUI };
 
 function comprarItem(index) {
-
   const item = carrinho.getItens()[index];
 
   if (!item) return;
 
   modalState.comprandoDoCarrinho = true;
 
+  modalState.item = modalState.item || {};
   modalState.item.nome = item.nome;
 
-  modalState.precoBase =
-  item.precoUnitario;
+  modalState.precoBase = item.precoUnitario;
 
   modalState.config = {
     quantidade: item.quantidade,
@@ -127,10 +163,7 @@ function comprarItem(index) {
 
   modalState.checkoutItens = [item];
 
-  abrirConfig(
-    item.nome,
-    modalState.precoBase
-  );
+  openConfig(item.nome, modalState.precoBase, item.sabor1);
 }
 
 window.aumentar = aumentar;

@@ -1,8 +1,10 @@
 import { pool } from "../database/db.js";
+import * as authService from "../services/authService.js";
 
-import bcrypt from "bcrypt";
-
-import jwt from "jsonwebtoken";
+function validarEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
 
 export async function registrar(
   req,
@@ -17,30 +19,50 @@ export async function registrar(
       senha
     } = req.body;
 
+    if (!nome || typeof nome !== "string" || nome.trim().length === 0) {
+      return res.status(400).json({
+        erro: "Nome é obrigatório e deve ser uma string não-vazia"
+      });
+    }
+
+    if (!email || typeof email !== "string" || !validarEmail(email)) {
+      return res.status(400).json({
+        erro: "Email é obrigatório e deve ser um email válido"
+      });
+    }
+
+    if (!senha || typeof senha !== "string" || senha.length < 6) {
+      return res.status(400).json({
+        erro: "Senha é obrigatória e deve ter no mínimo 6 caracteres"
+      });
+    }
+
+    const nomeSanitizado = nome.trim();
+    const emailSanitizado = email.toLowerCase().trim();
+
     const usuarioExistente =
       await pool.query(
         `
         SELECT id
         FROM usuarios
-        WHERE email = $1
+        WHERE LOWER(email) = $1
         `,
-        [email]
+        [emailSanitizado]
       );
 
     if (
       usuarioExistente.rows.length
     ) {
 
-      return res.status(400).json({
-        erro: "E-mail já cadastrado"
+      return res.status(409).json({
+        erro: "Email já cadastrado"
       });
 
     }
 
     const senhaHash =
-      await bcrypt.hash(
-        senha,
-        10
+      await authService.gerarHash(
+        senha
       );
 
     const result =
@@ -50,36 +72,50 @@ export async function registrar(
         (
           nome,
           email,
-          senha
+          senha,
+          tipo
         )
         VALUES
-        ($1,$2,$3)
+        ($1,$2,$3,$4)
         RETURNING
         id,
         nome,
         email,
-        tipo
+        tipo,
+        criado_em
         `,
         [
-          nome,
-          email,
-          senhaHash
+          nomeSanitizado,
+          emailSanitizado,
+          senhaHash,
+          "CLIENTE"
         ]
       );
+
+    const usuario = result.rows[0];
+
+    console.log(
+      "Novo usuário registrado",
+      { usuarioId: usuario.id, email: usuario.email }
+    );
 
     res.status(201).json({
       mensagem:
         "Conta criada com sucesso",
-      usuario:
-        result.rows[0]
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        tipo: usuario.tipo
+      }
     });
 
   } catch (error) {
 
-    console.error(error);
+    console.error("Erro ao registrar:", error);
 
     res.status(500).json({
-      erro: "Erro ao registrar"
+      erro: "Erro ao registrar usuário"
     });
 
   }
@@ -98,14 +134,28 @@ export async function login(
       senha
     } = req.body;
 
+    if (!email || typeof email !== "string" || !validarEmail(email)) {
+      return res.status(400).json({
+        erro: "Email é obrigatório e deve ser um email válido"
+      });
+    }
+
+    if (!senha || typeof senha !== "string" || senha.length === 0) {
+      return res.status(400).json({
+        erro: "Senha é obrigatória"
+      });
+    }
+
+    const emailSanitizado = email.toLowerCase().trim();
+
     const result =
       await pool.query(
         `
         SELECT *
         FROM usuarios
-        WHERE email = $1
+        WHERE LOWER(email) = $1
         `,
-        [email]
+        [emailSanitizado]
       );
 
     const usuario =
@@ -113,37 +163,47 @@ export async function login(
 
     if (!usuario) {
 
+      console.warn(
+        "Tentativa de login com email não encontrado",
+        { email: emailSanitizado, ip: req.ip }
+      );
+
       return res.status(401).json({
-        erro: "Usuário não encontrado"
+        erro: "Email ou senha inválidos"
       });
 
     }
 
     const senhaValida =
-      await bcrypt.compare(
+      await authService.validarSenha(
         senha,
         usuario.senha
       );
 
     if (!senhaValida) {
 
+      console.warn(
+        "Tentativa de login com senha incorreta",
+        { usuarioId: usuario.id, email: usuario.email, ip: req.ip }
+      );
+
       return res.status(401).json({
-        erro: "Senha inválida"
+        erro: "Email ou senha inválidos"
       });
 
     }
 
     const token =
-      jwt.sign(
-        {
-          id: usuario.id,
-          tipo: usuario.tipo
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "7d"
-        }
-      );
+      authService.gerarToken({
+        id: usuario.id,
+        email: usuario.email,
+        tipo: usuario.tipo
+      });
+
+    console.log(
+      "Login bem-sucedido",
+      { usuarioId: usuario.id, email: usuario.email, ip: req.ip }
+    );
 
     res.json({
 
@@ -160,7 +220,7 @@ export async function login(
 
   } catch (error) {
 
-    console.error(error);
+    console.error("Erro ao realizar login:", error);
 
     res.status(500).json({
       erro: "Erro ao realizar login"
@@ -177,6 +237,12 @@ export async function me(
 
   try {
 
+    if (!req.usuario || !req.usuario.id) {
+      return res.status(401).json({
+        erro: "Usuário não autenticado"
+      });
+    }
+
     const result =
       await pool.query(
         `
@@ -184,12 +250,19 @@ export async function me(
           id,
           nome,
           email,
-          tipo
+          tipo,
+          criado_em
         FROM usuarios
         WHERE id = $1
         `,
         [req.usuario.id]
       );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        erro: "Usuário não encontrado"
+      });
+    }
 
     res.json(
       result.rows[0]
@@ -197,7 +270,7 @@ export async function me(
 
   } catch (error) {
 
-    console.error(error);
+    console.error("Erro ao buscar usuário:", error);
 
     res.status(500).json({
       erro: "Erro ao buscar usuário"

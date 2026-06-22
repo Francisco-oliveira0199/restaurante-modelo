@@ -1,949 +1,377 @@
-import { modalState } from "../state/modalState.js";
-import { calcularTotal } from "../services/pedidoService.js";
-import * as view from "../views/modalView.js";
 import { carrinho } from "../main.js";
 import { atualizarBadge } from "../ui/badge.js";
-import { mostrarToast, mostrarErro, animarCarrinho } from "../ui/feedback.js";
-import { resetState } from "../state/modalState.js";
-import { normalizarItem } from "../utils/helpers.js";
-import { atualizarCarrinhoUI } from "../ui/atualizarCarrinhoUI.js";
-import {
-  criarPedido
-}
-from "../api/pedidoAPI.js";
+import { formatarPreco, normalizarItem } from "../utils/helpers.js";
+import { mostrarToast, animarCarrinho } from "../ui/feedback.js";
+import { modalState, resetState } from "../state/modalState.js";
 
-function getModalElements() {
+function criarOverlay() {
+  let overlay = document.getElementById("modal-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "modal-overlay";
+    overlay.style.position = "fixed";
+    overlay.style.inset = "0";
+    overlay.style.background = "rgba(0,0,0,0.5)";
+    overlay.style.zIndex = "9998";
+    document.body.appendChild(overlay);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) fecharModais();
+    });
+  }
+  return overlay;
+}
+
+function fecharModais() {
+  const existing = document.getElementById("modal-root");
+  const overlay = document.getElementById("modal-overlay");
+  if (existing) existing.remove();
+  if (overlay) overlay.remove();
+}
+
+function criarModal(titleHtml = "") {
+  fecharModais();
+  criarOverlay();
+  const modal = document.createElement("div");
+  modal.id = "modal-root";
+  modal.className = "modal-root";
+  modal.style.position = "fixed";
+  modal.style.left = "50%";
+  modal.style.top = "50%";
+  modal.style.transform = "translate(-50%,-50%)";
+  modal.style.background = "#fff";
+  modal.style.padding = "18px";
+  modal.style.zIndex = "9999";
+  modal.style.maxWidth = "560px";
+  modal.style.width = "95%";
+  modal.style.maxHeight = "90vh";
+  modal.style.overflowY = "auto";
+  modal.style.borderRadius = "8px";
+  modal.style.boxShadow = "0 8px 30px rgba(0,0,0,0.25)";
+  if (titleHtml) {
+    const h = document.createElement("div");
+    h.innerHTML = titleHtml;
+    modal.appendChild(h);
+  }
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function calcularPrecoUnitario(precoBase, modalEl) {
+  let preco = Number(precoBase) || 0;
+  if (!modalEl) return preco;
+  modalEl.querySelectorAll("[data-price]").forEach(el => {
+    try {
+      const checked = (el.type === "checkbox" || el.type === "radio") ? el.checked : true;
+      if (!checked) return;
+      const p = Number(el.dataset.price || el.dataset.preco || 0);
+      if (!Number.isNaN(p)) preco += p;
+    } catch (e) {}
+  });
+  modalEl.querySelectorAll("[data-price-input]").forEach(inp => {
+    const v = Number(inp.value);
+    if (!Number.isNaN(v)) preco += v;
+  });
+  return preco;
+}
+
+function montarItemDoModal(modalEl) {
+  const nome = modalState.item?.nome || modalEl.querySelector(".modal-nome")?.innerText || "Item";
+  const precoBase = Number(modalState.precoBase || 0);
+  const quantidade = Number(modalEl.querySelector(".modal-quantidade")?.value || 1);
+  const sabor1 = modalEl.querySelector(".modal-sabor1")?.value || modalState.config?.sabor1 || null;
+  const meioMeio = modalEl.querySelector(".modal-meio-meio") ? modalEl.querySelector(".modal-meio-meio").checked : (modalState.config?.meioMeio || false);
+  const sabor2 = meioMeio ? (modalEl.querySelector(".modal-sabor2")?.value || modalState.config?.sabor2 || null) : null;
+  const borda = modalEl.querySelector(".modal-borda")?.value || modalState.config?.borda || null;
+  const bebida = modalEl.querySelector(".modal-bebida")?.value || modalState.config?.bebida || null;
+  const ponto = modalEl.querySelector(".modal-ponto")?.value || modalState.config?.ponto || null;
+  const massa = modalEl.querySelector(".modal-massa")?.value || modalState.config?.massa || null;
+  const extras = Array.from(modalEl.querySelectorAll(".modal-extra:checked")).map(chk => chk.value);
+  const observacoes = modalEl.querySelector(".modal-observacoes")?.value || modalState.config?.observacoes || "";
+  const precoUnitario = calcularPrecoUnitario(precoBase, modalEl);
+  const total = precoUnitario * quantidade;
   return {
-    modal: document.getElementById("modalPedido"),
-    box: document.querySelector(".modal-box")
+    nome,
+    quantidade,
+    precoUnitario,
+    total,
+    sabor1,
+    sabor2,
+    meioMeio,
+    borda,
+    bebida,
+    ponto,
+    massa,
+    extras,
+    observacoes
   };
 }
 
-modalState.modo = "compra-direta";
-export function abrirConfigCarrinho(nome, preco, sabor = null) {
-
-  modalState.modo = "carrinho";
-
-  abrirConfig(nome, preco, sabor);
-
+async function atualizarUIcarrinho() {
+  try {
+    const mod = await import("../ui/atualizarCarrinhoUI.js");
+    if (mod && typeof mod.atualizarCarrinhoUI === "function") {
+      mod.atualizarCarrinhoUI();
+    }
+  } catch (e) {
+    console.warn("Não foi possível atualizar a UI do carrinho dinamicamente:", e);
+  }
 }
 
-export function abrirConfig(nome, preco, sabor = null) {
-
-  const { modal, box } = getModalElements();
-
-  const mesmoItem =
-  modalState.item.nome === nome &&
-  modalState.item.sabor === sabor;
-
-if (!mesmoItem) {
-
-  const modoAtual = modalState.modo;
-
-  resetState();
-
-  modalState.modo = modoAtual;
-
-  modalState.item.nome = nome;
-
-  modalState.precoBase = preco;
-
-  modalState.item.sabor = sabor;
-}
-
-  modal.classList.add("active");
-
-  box.innerHTML = view.renderConfig(nome, preco);
-
-  montarExtras();
-
-  bindEvents();
-
-  bindCloseModal();
-
-  restaurarConfig();
-
-  atualizarPreco();
-}
-
-function getTipo() {
-  const nome = modalState.item.nome.toLowerCase();
-
-  if (nome.includes("pizza")) return "pizza";
-  if (nome.includes("x-") || nome.includes("burger")) return "hamburguer";
-  if (nome.includes("pastel")) return "pastel";
-
-  return "outro";
-}
-
-function montarExtras() {
-  const tipo = getTipo();
-
-  const el = document.getElementById("extras");
-
-  if (!el) return;
-
-  if (tipo === "pizza") {
-
-    el.innerHTML = `
-
-     <div class="secao">
-
-    <h3>Borda recheada</h3>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="borda"
-        value=""
-        checked
-      >
-      <p>Sem borda</p>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="borda"
-        value="catupiry"
-      >
-      <p>Catupiry</p> <span>+R$ 5</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="borda"
-        value="cheddar"
-      >
-      <p>Cheddar</p> <span>+R$ 6</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="borda"
-        value="chocolate"
-      >
-      <p>Chocolate</p> <span>+R$ 8</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="borda"
-        value="cream-cheese"
-      >
-      <p>Cream Cheese</p> <span>+R$ 8</span>
-    </label>
-
-  </div>
-
-  <div class="secao">
-
-    <h3>Pizza meio a meio</h3>
-
-    <label class="radio-option">
-      <input
-        type="checkbox"
-        id="meioMeio"
-      >
-      Quero metade com outro sabor
-    </label>
-
-    <div
-      id="saboresMeioMeio"
-      style="display:none;"
-    >
-
-      <h4>Escolha o segundo sabor</h4>
-
-      <label class="radio-option">
-        <input
-          type="radio"
-          name="sabor2"
-          value="calabresa"
-        >
-        Calabresa
-      </label>
-
-      <label class="radio-option">
-        <input
-          type="radio"
-          name="sabor2"
-          value="frango-com-catupiry"
-        >
-        Frango com Catupiry
-      </label>
-
-      <label class="radio-option">
-        <input
-          type="radio"
-          name="sabor2"
-          value="mussarela"
-        >
-        Mussarela
-      </label>
-
-      <label class="radio-option">
-      <input
-        type="radio"
-        name="sabor2"
-        value="portuguesa"
-      >
-      Portuguesa
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="sabor2"
-        value="quatro-queijos"
-      >
-      Quatro Queijos
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="sabor2"
-        value="pepperoni"
-      >
-      Pepperoni
-    </label>
-
+export async function abrirConfig(nome, preco = 0, sabor = null) {
+  modalState.item = modalState.item || {};
+  modalState.item.nome = nome || modalState.item.nome || "";
+  modalState.precoBase = Number(preco || modalState.precoBase || 0);
+  if (sabor) {
+    modalState.config = modalState.config || {};
+    modalState.config.sabor1 = sabor;
+  }
+  const modal = criarModal(`<h3 class="modal-nome">${modalState.item.nome}</h3>`);
+  modal.innerHTML += `
+    <div style="margin-top:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:600;">Preço base:</div>
+        <div class="modal-preco" style="font-weight:700;">${formatarPreco(Number(modalState.precoBase || 0))}</div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>Quantidade:</label>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+          <button type="button" class="modal-qty-decr">-</button>
+          <input type="number" class="modal-quantidade" value="${modalState.config?.quantidade || 1}" min="1" style="width:64px;text-align:center;padding:6px;border-radius:4px;border:1px solid #ddd;">
+          <button type="button" class="modal-qty-incr">+</button>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>Sabor principal:</label>
+        <input type="text" class="modal-sabor1" value="${modalState.config?.sabor1 || (modalState.item?.sabor || '')}" placeholder="Sabor" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;margin-top:6px;">
+      </div>
+      <div style="margin-top:12px;">
+        <label>
+          <input type="checkbox" class="modal-meio-meio" ${modalState.config?.meioMeio ? "checked" : ""}>
+          Meio a meio (adicionar segundo sabor)
+        </label>
+        <div style="margin-top:8px; display:${modalState.config?.meioMeio ? "block" : "none"};" class="modal-sabor2-wrap">
+          <input type="text" class="modal-sabor2" value="${modalState.config?.sabor2 || ''}" placeholder="Segundo sabor" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>Borda:</label>
+        <select class="modal-borda" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;margin-top:6px;">
+          <option value="">-- sem borda --</option>
+          <option value="catupiry" data-price="5" ${modalState.config?.borda === "catupiry" ? "selected" : ""}>Catupiry (+R$5,00)</option>
+          <option value="cheddar" data-price="6" ${modalState.config?.borda === "cheddar" ? "selected" : ""}>Cheddar (+R$6,00)</option>
+        </select>
+      </div>
+      <div style="margin-top:12px;">
+        <label>Extras:</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+          <label><input type="checkbox" class="modal-extra" value="bacon" data-price="3"> Bacon (+R$3)</label>
+          <label><input type="checkbox" class="modal-extra" value="ovo" data-price="2"> Ovo (+R$2)</label>
+          <label><input type="checkbox" class="modal-extra" value="cebola" data-price="1"> Cebola (+R$1)</label>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>Observações:</label>
+        <textarea class="modal-observacoes" rows="3" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;margin-top:6px;">${modalState.config?.observacoes || ""}</textarea>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:center;justify-content:flex-end;">
+        <div class="modal-total" style="font-weight:700;margin-right:auto;">Total: ${formatarPreco(calcularPrecoUnitario(modalState.precoBase, null) * (modalState.config?.quantidade || 1))}</div>
+        <button type="button" class="btn btn-secondary modal-fechar">Fechar</button>
+        <button type="button" class="btn btn-primary modal-adicionar">Adicionar ao carrinho</button>
+        <button type="button" class="btn btn-success modal-comprar" style="background:#2b9f3b;color:#fff;">Comprar agora</button>
+      </div>
     </div>
-
-  </div>
-
-  <div class="secao">
-
-    <h3>Extras</h3>
-
-    <label class="radio-option">
-      <input
-        type="checkbox"
-        class="extra"
-        value="bacon"
-      >
-      <p>Bacon</p> <span>+R$ 3</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="checkbox"
-        class="extra"
-        value="queijo"
-      >
-      <p>Queijo extra</p> <span>+R$ 2</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="checkbox"
-        class="extra"
-        value="calabresa"
-      >
-      <p>Calabresa</p> <span>+R$ 4</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="checkbox"
-        class="extra"
-        value="ovo"
-      >
-      <p>Ovo</p> <span>+R$ 2</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="checkbox"
-        class="extra"
-        value="milho"
-      >
-      <p>Milho</p> <span>+R$ 2</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="checkbox"
-        class="extra"
-        value="cebola"
-      >
-      <p>Cebola</p> <span>+R$ 1,50</span>
-    </label>
-
-  </div>
-
-  <div class="secao">
-
-    <h3>Bebida</h3>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="bebida"
-        value=""
-        checked
-      >
-      <p>Sem bebida</p>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="bebida"
-        value="coca-lata"
-      >
-      <p>Coca-Cola Lata</p> <span>+R$ 6</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="bebida"
-        value="guarana"
-      >
-      <p>Guaraná Antarctica</p> <span>+R$ 6</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="bebida"
-        value="coca-1l"
-      >
-      <p>Coca-Cola 1L</p> <span>+R$ 10,00</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="bebida"
-        value="laranja"
-      >
-      <p>Suco de Laranja</p> <span>+R$ 12,00</span>
-    </label>
-
-    <label class="radio-option">
-      <input
-        type="radio"
-        name="bebida"
-        value="agua"
-      >
-      <p>Água Mineral</p> <span>+R$ 4,00</span>
-    </label>
-
-  </div>
-
-  <div class="secao">
-
-    <h3>Observações</h3>
-
-    <textarea
-      id="observacoes"
-      placeholder="Ex: sem cebola, mais assada..."
-    ></textarea>
-
-  </div>
-
-    `;
-
-    document
-  .getElementById("meioMeio")
-  ?.addEventListener("change", e => {
-
-    const box =
-      document.getElementById("saboresMeioMeio");
-
-    box.style.display =
-      e.target.checked ? "block" : "none";
-
-    if (!e.target.checked) {
-
-      document
-        .querySelectorAll('input[name="sabor2"]')
-        .forEach(radio => {
-
-          radio.checked = false;
-
-        });
-
-    }
-
-    atualizarPreco();
-
-});
-
-    const meioMeio =
-  document.getElementById("meioMeio");
-
-document.getElementById("saboresMeioMeio").style.display =
-  meioMeio?.checked ? "block" : "none";
-  }
-
-  if (tipo === "hamburguer") {
-
-    el.innerHTML = `
-
-      <div class="secao">
-
-  <h3>Adicionais</h3>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="bacon"
-    >
-    <p>Bacon</p>
-    <span>+R$ 4</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="queijo"
-    >
-    <p>Queijo extra</p>
-    <span>+R$ 3</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="cebola-caramelizada"
-    >
-    <p>Cebola caramelizada</p>
-    <span>+R$ 3</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="ovo"
-    >
-    <p>Ovo</p>
-    <span>+R$ 2</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="picles"
-    >
-    <p>Picles</p>
-    <span>+R$ 2</span>
-  </label>
-
-</div>
-
-<div class="secao">
-
-  <h3>Ponto da carne</h3>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="ponto"
-      value="mal-passado"
-    >
-    <p>Mal passado</p>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="ponto"
-      value="ao-ponto"
-      checked
-    >
-    <p>Ao ponto</p>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="ponto"
-      value="bem-passado"
-    >
-    <p>Bem passado</p>
-  </label>
-
-</div>
-
-<div class="secao">
-
-  <h3>Bebida</h3>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value=""
-      checked
-    >
-    <p>Sem bebida</p>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="coca-lata"
-    >
-    <p>Coca-Cola Lata</p>
-    <span>+R$ 6</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="guarana"
-    >
-    <p>Guaraná Antarctica</p>
-    <span>+R$ 6</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="suco de laranja"
-    >
-    <p>Suco Natural de Laranja</p>
-    <span>+R$ 10</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="agua"
-    >
-    <p>Água Mineral</p>
-    <span>+R$ 4</span>
-  </label>
-
-</div>
-
-<div class="secao">
-
-  <h3>Observações</h3>
-
-  <textarea
-    id="observacoes"
-    placeholder="Ex: sem cebola, molho separado..."
-  ></textarea>
-
-</div>
-
-    `;
-  }
-
-  if (tipo === "pastel") {
-
-    el.innerHTML = `
-
-      <div class="secao">
-
-  <h3>Adicionais</h3>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="queijo"
-    >
-    <p>Queijo extra</p>
-    <span>+R$ 3</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="milho"
-    >
-    <p>Milho</p>
-    <span>+R$ 2</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="bacon"
-    >
-    <p>Bacon crocante</p>
-    <span>+R$ 4</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="catupiry"
-    >
-    <p>Catupiry</p>
-    <span>+R$ 3</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="checkbox"
-      class="extra"
-      value="calabresa"
-    >
-    <p>Calabresa</p>
-    <span>+R$ 4</span>
-  </label>
-
-</div>
-
-<div class="secao">
-
-  <h3>Tipo de massa</h3>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="massa"
-      value="tradicional"
-      checked
-    >
-    <p>Tradicional</p>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="massa"
-      value="pizza"
-    >
-    <p>Massa sabor pizza</p>
-    <span>+R$ 2</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="massa"
-      value="integral"
-    >
-    <p>Massa integral</p>
-    <span>+R$ 3</span>
-  </label>
-
-</div>
-
-<div class="secao">
-
-  <h3>Bebida</h3>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value=""
-      checked
-    >
-    <p>Sem bebida</p>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="coca-lata"
-    >
-    <p>Coca-Cola Lata</p>
-    <span>+R$ 6</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="guarana"
-    >
-    <p>Guaraná Antarctica</p>
-    <span>+R$ 6</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="suco de laranja"
-    >
-    <p>Suco Natural de Laranja</p>
-    <span>+R$ 10</span>
-  </label>
-
-  <label class="radio-option">
-    <input
-      type="radio"
-      name="bebida"
-      value="agua"
-    >
-    <p>Água Mineral</p>
-    <span>+R$ 4</span>
-  </label>
-
-</div>
-
-<div class="secao">
-
-  <h3>Observações</h3>
-
-  <textarea
-    id="observacoes"
-    placeholder="Ex: pouco óleo, bem crocante, molho separado..."
-  ></textarea>
-
-</div>
-
-    `;
-  }
-}
-
-function restaurarConfig() {
-
-  const config = modalState.config;
-
-  document.getElementById("quantidadeValor").innerText =
-  config.quantidade || 1;
-
-  if (document.getElementById("sabor1")) {
-    document.getElementById("sabor1").value =
-      config.sabor1 || "";
-
-  const obs =
-  document.getElementById("observacoes");
-
-if (obs) {
-  obs.value = config.observacoes || "";
-}
-  }
-
-if (config.sabor2) {
-
-  const radio = document.querySelector(
-    `input[name="sabor2"][value="${config.sabor2}"]`
-  );
-
-  if (radio) {
-    radio.checked = true;
-  }
-
-}
-
-  if (document.getElementById("meioMeio")) {
-    document.getElementById("meioMeio").checked =
-      config.meioMeio || false;
-  }
-
-  if (config.borda) {
-
-  const radio = document.querySelector(
-    `input[name="borda"][value="${config.borda}"]`
-  );
-
-  if (radio) {
-    radio.checked = true;
-  }
-
-}
-
-  const bebida = document.querySelector(
-  `input[name="bebida"][value="${config.bebida}"]`
-);
-
-if (bebida) {
-  bebida.checked = true;
-}
-
-  if (config.ponto) {
-
-  const radio = document.querySelector(
-    `input[name="ponto"][value="${config.ponto}"]`
-  );
-
-  if (radio) {
-    radio.checked = true;
-  }
-
-}
-
-  if (config.massa) {
-
-  const radio = document.querySelector(
-    `input[name="massa"][value="${config.massa}"]`
-  );
-
-  if (radio) {
-    radio.checked = true;
-  }
-
-}
-
-  document.querySelectorAll(".extra").forEach(extra => {
-
-    extra.checked =
-      config.extras?.includes(extra.value);
-
-   });
-
-  }
-
-function bindEvents() {
-  document.getElementById("btnContinuar")
-    .addEventListener("click", irEntrega);
-
-    document
-  .getElementById("btnAdicionarCarrinho")
-  ?.addEventListener("click", adicionarAoCarrinho);
-
-const menos = document.getElementById("menosQtd");
-const mais = document.getElementById("maisQtd");
-const valor = document.getElementById("quantidadeValor");
-
-if (menos && mais && valor) {
-
-  menos.addEventListener("click", () => {
-
-    let qtd = Number(valor.innerText);
-
-    if (qtd > 1) {
-      qtd--;
-    }
-
-    valor.innerText = qtd;
-
-    atualizarPreco();
-
+  `;
+
+  const btnFechar = modal.querySelector(".modal-fechar");
+  const btnAdicionar = modal.querySelector(".modal-adicionar");
+  const btnComprar = modal.querySelector(".modal-comprar");
+  const inputQty = modal.querySelector(".modal-quantidade");
+  const btnIncr = modal.querySelector(".modal-qty-incr");
+  const btnDecr = modal.querySelector(".modal-qty-decr");
+  const meioChk = modal.querySelector(".modal-meio-meio");
+  const sabor2Wrap = modal.querySelector(".modal-sabor2-wrap");
+  const totalEl = modal.querySelector(".modal-total");
+
+  btnIncr?.addEventListener("click", () => {
+    inputQty.value = Math.max(1, Number(inputQty.value || 1) + 1);
+    atualizarTotal();
+  });
+  btnDecr?.addEventListener("click", () => {
+    inputQty.value = Math.max(1, Number(inputQty.value || 1) - 1);
+    atualizarTotal();
+  });
+  inputQty?.addEventListener("input", () => {
+    if (Number(inputQty.value) < 1) inputQty.value = 1;
+    atualizarTotal();
   });
 
-  mais.addEventListener("click", () => {
-
-    let qtd = Number(valor.innerText);
-
-    qtd++;
-
-    valor.innerText = qtd;
-
-    atualizarPreco();
-
+  meioChk?.addEventListener("change", () => {
+    const checked = meioChk.checked;
+    sabor2Wrap.style.display = checked ? "block" : "none";
   });
 
+  modal.querySelectorAll("[data-price], [data-price-input]").forEach(el => {
+    el.addEventListener("change", atualizarTotal);
+    el.addEventListener("input", atualizarTotal);
+  });
+
+  btnFechar?.addEventListener("click", () => fecharModais());
+
+  btnAdicionar?.addEventListener("click", () => {
+    const item = montarItemDoModal(modal);
+    const normalized = normalizarItem({
+      nome: item.nome,
+      quantidade: item.quantidade,
+      precoUnitario: item.precoUnitario,
+      total: item.total,
+      sabor1: item.sabor1,
+      sabor2: item.sabor2,
+      meioMeio: item.meioMeio,
+      borda: item.borda,
+      bebida: item.bebida,
+      ponto: item.ponto,
+      massa: item.massa,
+      extras: item.extras,
+      observacoes: item.observacoes
+    });
+    carrinho.adicionar(normalized);
+    atualizarBadge();
+    atualizarUIcarrinho();
+    mostrarToast("Item adicionado ao carrinho");
+    animarCarrinho();
+    fecharModais();
+  });
+
+  btnComprar?.addEventListener("click", async () => {
+    const item = montarItemDoModal(modal);
+    const normalized = normalizarItem({
+      nome: item.nome,
+      quantidade: item.quantidade,
+      precoUnitario: item.precoUnitario,
+      total: item.total,
+      sabor1: item.sabor1,
+      sabor2: item.sabor2,
+      meioMeio: item.meioMeio,
+      borda: item.borda,
+      bebida: item.bebida,
+      ponto: item.ponto,
+      massa: item.massa,
+      extras: item.extras,
+      observacoes: item.observacoes
+    });
+    carrinho.adicionar(normalized);
+    atualizarBadge();
+    atualizarUIcarrinho();
+    mostrarToast("Item adicionado ao carrinho");
+    animarCarrinho();
+    fecharModais();
+    abrirCarrinho();
+  });
+
+  function atualizarTotal() {
+    const unit = calcularPrecoUnitario(modalState.precoBase, modal);
+    const qty = Number(inputQty.value || 1);
+    totalEl.innerText = `Total: ${formatarPreco(unit * qty)}`;
+  }
 }
 
-  document.getElementById("extras")
-    .addEventListener("change", atualizarPreco);
+export function abrirConfigCarrinho(nome, preco = 0, sabor = null) {
+  abrirConfig(nome, preco, sabor);
 }
 
-export function fecharModal() {
-  const { modal, box } = getModalElements();
+export function abrirCarrinho() {
+  const modal = criarModal(`<h3>Carrinho</h3>`);
+  modal.innerHTML += `
+    <div style="margin-top:12px;">
+      <div id="carrinhoListaWrapper">
+        <div id="carrinhoLista"></div>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:700;">Total:</div>
+        <div id="totalCarrinho" style="font-weight:700;">R$ 0,00</div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-secondary modal-fechar-carrinho">Fechar</button>
+        <button class="btn btn-primary modal-finalizar">Finalizar pedido</button>
+      </div>
+    </div>
+  `;
 
-  modal.classList.remove("active");
-  box.innerHTML = "";
+  atualizarUIcarrinho();
 
-    resetState();
-}
+  const btnFechar = modal.querySelector(".modal-fechar-carrinho");
+  const btnFinalizar = modal.querySelector(".modal-finalizar");
 
-export async function listarMeusPedidos(
-  req,
-  res
-) {
+  btnFechar?.addEventListener("click", () => fecharModais());
 
-  const usuarioId =
-    req.usuario.id;
-
-  const result =
-    await pool.query(
-      `
-      SELECT *
-      FROM pedidos
-      WHERE usuario_id = $1
-      ORDER BY id DESC
-      `,
-      [usuarioId]
-    );
-
-  res.json(
-    result.rows
-  );
-
-}
-
-async function finalizarPedido() {
-
-  const pedido = {
-
-    cliente_nome:
-      modalState.usuario.nome,
-
-    telefone:
-      modalState.usuario.telefone,
-
-    endereco:
-      modalState.endereco,
-
-    pagamento:
-      modalState.pagamento,
-
-    total:
-      carrinho.getTotal(),
-
-    itens:
-      modalState.checkoutItens
-
-  };
-
-  await fetch(
-    "http://localhost:3000/pedido",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json"
-      },
-      body:
-        JSON.stringify(pedido)
+  btnFinalizar?.addEventListener("click", async () => {
+    const itens = carrinho.getItens();
+    if (!itens || itens.length === 0) {
+      mostrarToast("Seu carrinho está vazio");
+      return;
     }
-  );
 
-}
+    const payload = {
+      endereco_id: modalState.endereco?.id || null,
+      cliente_nome: modalState.endereco?.nome || modalState.item?.nome || "Cliente",
+      telefone: modalState.endereco?.telefone || null,
+      pagamento: modalState.pagamento || "dinheiro",
+      total: itens.reduce((s, it) => s + (it.total || 0), 0),
+      itens: itens.map(it => ({
+        produto_nome: it.nome,
+        quantidade: it.quantidade,
+        preco_unitario: it.precoUnitario || it.preco || 0,
+        subtotal: it.total || (it.precoUnitario * it.quantidade),
+        observacoes: it.observacoes || ""
+      })),
+      troco_para: modalState.trocoPara || null
+    };
 
-import {
-  criarPix
-}
-from "../services/paymentService.js";
+    const token = localStorage.getItem("token");
+    if (!token) {
+    
+      mostrarToast("Faça login para finalizar o pedido. Seu pedido foi salvo localmente.");
+      
+      return;
+    }
 
-const pix =
-  await criarPix({
+    try {
+      const resp = await fetch("/pedido", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
 
-    id: pedido.id,
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => null);
+        console.error("Erro ao criar pedido:", resp.status, txt);
+        mostrarToast("Não foi possível finalizar o pedido no servidor. Tente novamente.", "erro");
+        return;
+      }
 
-    nome:
-      pedido.cliente_nome,
+      const data = await resp.json().catch(() => null);
+    
+      carrinho.limpar();
+      atualizarBadge();
+      await atualizarUIcarrinho();
+      mostrarToast("Pedido realizado com sucesso!");
+      fecharModais();
 
-    email:
-      pedido.email,
-
-    total:
-      pedido.total
-
+      if (data && data.id) {
+        
+      }
+    } catch (err) {
+      console.error("Erro conexão pedido:", err);
+      mostrarToast("Erro ao conectar ao servidor. Seu pedido está salvo localmente.", "erro");
+    }
   });
+}
 
-
-
-
-
+export default {
+  abrirConfig,
+  abrirConfigCarrinho,
+  abrirCarrinho
+};
