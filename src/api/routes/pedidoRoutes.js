@@ -4,7 +4,9 @@ import {
   criarPedido,
   listarPedidos,
   buscarPedido,
-  atualizarStatus
+  atualizarStatus,
+  listarMeusPedidos,
+  buscarMeuPedidoStatus
 } from "../controllers/pedidoController.js";
 
 import {
@@ -21,6 +23,18 @@ router.post(
   "/",
   authMiddleware,
   criarPedido
+);
+
+router.get(
+  "/me",
+  authMiddleware,
+  listarMeusPedidos
+);
+
+router.get(
+  "/me/:id/status",
+  authMiddleware,
+  buscarMeuPedidoStatus
 );
 
 router.get(

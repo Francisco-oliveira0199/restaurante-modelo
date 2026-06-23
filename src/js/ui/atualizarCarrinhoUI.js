@@ -1,17 +1,18 @@
 import { carrinho } from "../main.js";
 import { formatarPreco } from "../utils/helpers.js";
-import {
-  aumentar,
-  diminuir,
-  remover
-} from "../controllers/carrinhoController.js";
-
+import { aumentar, diminuir, remover } from "../controllers/carrinhoController.js";
 import { modalState } from "../state/modalState.js";
 
+/**
+ * Abre a configuração de um item do carrinho para edição
+ * @param {string} nome - Nome do produto
+ * @param {number} preco - Preço do produto
+ * @param {string} sabor - Sabor do produto
+ */
 async function openConfig(nome, preco, sabor) {
   try {
-    if (typeof window !== "undefined" && typeof window.openModal === "function") {
-      window.openModal(nome, preco, sabor);
+    if (typeof window !== "undefined" && typeof window.abrirConfig === "function") {
+      window.abrirConfig(nome, preco, sabor);
       return;
     }
 
@@ -31,126 +32,194 @@ async function openConfig(nome, preco, sabor) {
   console.warn("openConfig: nenhuma implementação de modal disponível");
 }
 
+/**
+ * Formata extras para exibição
+ * @param {Array} extras - Array de extras
+ * @returns {string} String formatada com extras
+ */
+function formatarExtras(extras) {
+  if (!extras || extras.length === 0) return "";
+
+  const extrasFormatados = {
+    bacon: "Bacon",
+    ovo: "Ovo",
+    cebola: "Cebola",
+    presunto: "Presunto",
+    frango: "Frango",
+    queijo: "Queijo"
+  };
+
+  return extras
+    .map((e) => extrasFormatados[e] || e)
+    .join(", ");
+}
+
+/**
+ * Constrói HTML de extras para exibição no carrinho
+ * @param {object} item - Item do carrinho
+ * @returns {string} HTML com informações dos extras
+ */
+function construirHTMLExtras(item) {
+  let extrasHTML = "";
+
+  if (item.sabor1) {
+    extrasHTML += `<p><strong>Sabor:</strong> ${String(item.sabor1)}</p>`;
+  }
+
+  if (item.meioMeio && item.sabor2) {
+    extrasHTML += `<p><strong>Meio a meio:</strong> ${String(item.sabor1)} / ${String(item.sabor2)}</p>`;
+  }
+
+  if (item.borda) {
+    const bordaFormatada = item.borda.charAt(0).toUpperCase() + item.borda.slice(1);
+    extrasHTML += `<p><strong>Borda:</strong> ${bordaFormatada}</p>`;
+  }
+
+  if (item.bebida) {
+    extrasHTML += `<p><strong>Bebida:</strong> ${String(item.bebida)}</p>`;
+  }
+
+  if (item.ponto) {
+    extrasHTML += `<p><strong>Ponto:</strong> ${String(item.ponto)}</p>`;
+  }
+
+  if (item.massa) {
+    extrasHTML += `<p><strong>Massa:</strong> ${String(item.massa)}</p>`;
+  }
+
+  if (item.extras && item.extras.length > 0) {
+    const extrasFormatados = formatarExtras(item.extras);
+    extrasHTML += `<p><strong>Extras:</strong> ${extrasFormatados}</p>`;
+  }
+
+  if (item.observacoes) {
+    extrasHTML += `<p><strong>Obs:</strong> ${String(item.observacoes)}</p>`;
+  }
+
+  return extrasHTML;
+}
+
 function atualizarCarrinhoUI() {
   const container = document.getElementById("carrinhoLista");
   const totalEl = document.getElementById("totalCarrinho");
 
-  if (!container || !totalEl) return;
+  if (!container || !totalEl) {
+    console.warn("Elementos do carrinho não encontrados no DOM");
+    return;
+  }
 
-  if (carrinho.getItens().length === 0) {
+  const itens = carrinho.getItens();
+
+  if (itens.length === 0) {
     container.innerHTML = "<p>Seu carrinho está vazio</p>";
     totalEl.innerText = "R$ 0,00";
     return;
   }
 
   let html = "";
-
-  container.innerHTML = "";
-
   let total = 0;
 
-  carrinho.getItens().forEach((item, index) => {
-    const precoBase = item.precoUnitario || item.preco;
-    const subtotal = item.total;
+  itens.forEach((item, index) => {
+    const subtotal = item.total || 0;
     total += subtotal;
-    let extrasHTML = "";
 
-    if (item.meioMeio) {
-      extrasHTML += `<p>Meio a meio: ${String(item.sabor1)} / ${String(item.sabor2)}</p>`;
-    }
-
-    if (item.borda) {
-      extrasHTML += `<p>Borda: ${String(item.borda)}</p>`;
-    }
-
-    if (item.bebida) {
-      extrasHTML += `<p>Bebida: ${String(item.bebida)}</p>`;
-    }
-
-    if (item.ponto) {
-      extrasHTML += `<p>Ponto: ${String(item.ponto)}</p>`;
-    }
-
-    if (item.massa) {
-      extrasHTML += `<p>Massa: ${String(item.massa)}</p>`;
-    }
-
-    if (item.extras?.length) {
-      extrasHTML += `<p>Extras: ${item.extras.map(e => String(e)).join(", ")}</p>`;
-    }
+    const extrasHTML = construirHTMLExtras(item);
 
     html += `
       <div class="carrinho-item">
-
         <div class="info">
           <strong>${String(item.nome)}</strong>
-          <p>R$ ${subtotal.toFixed(2).replace(".", ",")}</p>
+          <p class="item-preco">${formatarPreco(subtotal)}</p>
           ${extrasHTML}
         </div>
 
         <div class="acoes">
+          <div class="acoes-topo">
+            <div class="qtd">
+              <button data-action="diminuir" data-index="${index}" aria-label="Diminuir quantidade">−</button>
+              <span>${item.quantidade}</span>
+              <button data-action="aumentar" data-index="${index}" aria-label="Aumentar quantidade">+</button>
+            </div>
 
-  <div class="acoes-topo">
+            <button class="remover" data-action="remover" data-index="${index}" aria-label="Remover item">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
 
-    <div class="qtd">
-      <button data-action="diminuir" data-index="${index}">-</button>
-
-      <span>${item.quantidade}</span>
-
-      <button data-action="aumentar" data-index="${index}">+</button>
-    </div>
-
-    <button class="remover" data-action="remover" data-index="${index}">
-      <i class="fa-solid fa-trash"></i>
-    </button>
-
-  </div>
-
-  <button class="btn-comprar-item" data-action="comprar-item" data-index="${index}">
-    Comprar
-  </button>
-
-  </div>
-
+          <button class="btn-comprar-item" data-action="comprar-item" data-index="${index}">
+            Editar
+          </button>
+        </div>
       </div>
     `;
   });
 
   container.innerHTML = html;
 
-  totalEl.innerText = `R$ ${total.toFixed(2).replace(".", ",")}`;
+  totalEl.innerText = formatarPreco(total);
 
-  container.querySelectorAll("button[data-action]").forEach(btn => {
+  container.querySelectorAll("button[data-action]").forEach((btn) => {
     const action = btn.dataset.action;
     const idx = Number(btn.dataset.index);
-    if (action === "aumentar") {
-      btn.addEventListener("click", () => aumentar(idx));
-    } else if (action === "diminuir") {
-      btn.addEventListener("click", () => diminuir(idx));
-    } else if (action === "remover") {
-      btn.addEventListener("click", () => remover(idx));
-    } else if (action === "comprar-item") {
-      btn.addEventListener("click", () => comprarItem(idx));
+
+    if (Number.isNaN(idx)) {
+      console.warn("Índice inválido para botão:", btn);
+      return;
     }
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      switch (action) {
+        case "aumentar":
+          aumentar(idx);
+          break;
+        case "diminuir":
+          diminuir(idx);
+          break;
+        case "remover":
+          remover(idx);
+          break;
+        case "comprar-item":
+          comprarItem(idx);
+          break;
+        default:
+          console.warn("Ação desconhecida:", action);
+      }
+    });
   });
 }
 
-export { atualizarCarrinhoUI };
-
+/**
+ * Abre o item do carrinho em modo de edição
+ * @param {number} index - Índice do item
+ */
 function comprarItem(index) {
-  const item = carrinho.getItens()[index];
+  const itens = carrinho.getItens();
 
-  if (!item) return;
+  if (!itens || index < 0 || index >= itens.length) {
+    console.warn("Índice inválido para compra de item:", index);
+    return;
+  }
+
+  const item = itens[index];
+
+  if (!item) {
+    console.warn("Item não encontrado no índice:", index);
+    return;
+  }
 
   modalState.comprandoDoCarrinho = true;
 
   modalState.item = modalState.item || {};
   modalState.item.nome = item.nome;
+  modalState.item.sabor = item.sabor1 || null;
 
-  modalState.precoBase = item.precoUnitario;
+  modalState.precoBase = item.precoUnitario || 0;
 
   modalState.config = {
-    quantidade: item.quantidade,
+    quantidade: item.quantidade || 1,
     sabor1: item.sabor1 || null,
     sabor2: item.sabor2 || null,
     meioMeio: item.meioMeio || false,
@@ -158,7 +227,8 @@ function comprarItem(index) {
     bebida: item.bebida || null,
     ponto: item.ponto || null,
     massa: item.massa || null,
-    extras: item.extras || []
+    extras: item.extras || [],
+    observacoes: item.observacoes || ""
   };
 
   modalState.checkoutItens = [item];
@@ -166,7 +236,7 @@ function comprarItem(index) {
   openConfig(item.nome, modalState.precoBase, item.sabor1);
 }
 
-window.aumentar = aumentar;
-window.diminuir = diminuir;
-window.remover = remover;
+window.atualizarCarrinhoUI = atualizarCarrinhoUI;
 window.comprarItem = comprarItem;
+
+export { atualizarCarrinhoUI };
