@@ -1,10 +1,10 @@
-import { carrinho } from "../main.js";
-import { atualizarBadge } from "../ui/badge.js";
-import { mostrarToast, animarCarrinho } from "../ui/feedback.js";
+import { carrinho } from "../../js/main.js";
+import { atualizarBadge } from "../../js/ui/badge.js";
+import { mostrarToast, animarCarrinho } from "../../js/ui/feedback.js";
 
 async function atualizarUIcarrinho() {
   try {
-    const mod = await import("../ui/atualizarCarrinhoUI.js");
+    const mod = await import("../../js/ui/atualizarCarrinhoUI.js");
     if (mod && typeof mod.atualizarCarrinhoUI === "function") {
       mod.atualizarCarrinhoUI();
     }

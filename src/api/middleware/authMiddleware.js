@@ -1,4 +1,4 @@
-import { carrinho } from "../main.js";
+import { carrinho } from "../../js/main.js";
 import { formatarPreco } from "../utils/helpers.js";
 import { aumentar, diminuir, remover } from "../controllers/carrinhoController.js";
 import { modalState } from "../state/modalState.js";

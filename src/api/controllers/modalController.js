@@ -1,4 +1,4 @@
-import { carrinho } from "../main.js";
+import { carrinho } from "../../js/main.js";
 import { atualizarBadge } from "../ui/badge.js";
 import { formatarPreco, normalizarItem } from "../utils/helpers.js";
 import { mostrarToast, animarCarrinho } from "../ui/feedback.js";

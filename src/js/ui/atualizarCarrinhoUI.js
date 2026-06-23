@@ -1,7 +1,7 @@
 import { carrinho } from "../main.js";
 import { formatarPreco } from "../utils/helpers.js";
-import { aumentar, diminuir, remover } from "../controllers/carrinhoController.js";
-import { modalState } from "../state/modalState.js";
+import { aumentar, diminuir, remover } from "../../api/controllers/carrinhoController.js";
+import { modalState } from "../../api/state/modalState.js";
 
 /**
  * Abre a configuração de um item do carrinho para edição

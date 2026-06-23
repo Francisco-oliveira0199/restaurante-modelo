@@ -21,10 +21,14 @@
   },
   "homepage": "https://github.com/Francisco-oliveira0199/restauranete-modelo#readme",
   "dependencies": {
+    "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
     "mercadopago": "^3.0.0",
+    "morgan": "^1.11.0",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.10",
     "pg": "^8.21.0"

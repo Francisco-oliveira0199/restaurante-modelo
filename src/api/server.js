@@ -9,7 +9,6 @@ import compression from "compression";
 import pedidoRoutes from "./routes/pedidoRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
-import dashboardRoutes from "./routes/dashboardRoutes.js";
 import pagamentoRoutes from "./routes/pagamentoRoutes.js";
 
 import enderecoRoutes from "./routes/enderecoRoutes.js";
