@@ -1,155 +1,170 @@
-import { carrinho } from "../../js/main.js";
-import { atualizarBadge } from "../../js/ui/badge.js";
-import { mostrarToast, animarCarrinho } from "../../js/ui/feedback.js";
+const carts = new Map();
 
-async function atualizarUIcarrinho() {
+function ensureCart(userId) {
+  const id = String(userId || "anon");
+  if (!carts.has(id)) carts.set(id, []);
+  return carts.get(id);
+}
+
+function getItemByIndex(cart, index) {
+  const idx = Number(index);
+  if (!Array.isArray(cart)) return { error: "Carrinho inválido" };
+  if (Number.isNaN(idx) || idx < 0 || idx >= cart.length) {
+    return { error: "Índice inválido" };
+  }
+  return { item: cart[idx], index: idx };
+}
+
+/**
+ * Adiciona um item ao carrinho
+ * @param {string|number} userId
+ * @param {object} item - { nome, precoUnitario, quantidade, config? }
+ * @returns {object} item adicionado
+ */
+export function adicionar(userId, item) {
+  const cart = ensureCart(userId);
+
+  if (!item || typeof item !== "object") {
+    throw new Error("Item inválido");
+  }
+
+  const quantidade = Number(item.quantidade) || 1;
+  const precoUnitario = Number(item.precoUnitario) || 0;
+  const nome = String(item.nome || "");
+
+  const existingIndex = cart.findIndex(i =>
+    i.nome === nome && JSON.stringify(i.config || {}) === JSON.stringify(item.config || {})
+  );
+
+  if (existingIndex >= 0) {
+    cart[existingIndex].quantidade += quantidade;
+    cart[existingIndex].total = cart[existingIndex].quantidade * (cart[existingIndex].precoUnitario || 0);
+    return cart[existingIndex];
+  }
+
+  const newItem = {
+    nome,
+    quantidade,
+    precoUnitario,
+    total: quantidade * precoUnitario,
+    config: item.config || {}
+  };
+
+  cart.push(newItem);
+  return newItem;
+}
+
+export function aumentar(userIdOrReq, indexOrRes) {
+  
+  if (typeof userIdOrReq !== "object" || !userIdOrReq?.headers) {
+    const userId = userIdOrReq;
+    const index = indexOrRes;
+    const cart = ensureCart(userId);
+    const { error, item } = getItemByIndex(cart, index);
+    if (error) throw new Error(error);
+    item.quantidade = Number(item.quantidade || 0) + 1;
+    item.total = Number(item.precoUnitario || 0) * item.quantidade;
+    return item;
+  }
+
+  const req = userIdOrReq;
+  const res = indexOrRes;
   try {
-    const mod = await import("../../js/ui/atualizarCarrinhoUI.js");
-    if (mod && typeof mod.atualizarCarrinhoUI === "function") {
-      mod.atualizarCarrinhoUI();
+    const userId = req.usuario?.id || req.body.userId || "anon";
+    const index = req.params?.index ?? req.body?.index;
+    const result = aumentar(userId, index);
+    return res.json(result);
+  } catch (err) {
+    return res.status(400).json({ erro: err.message });
+  }
+}
+
+export function diminuir(userIdOrReq, indexOrRes) {
+  if (typeof userIdOrReq !== "object" || !userIdOrReq?.headers) {
+    const userId = userIdOrReq;
+    const index = indexOrRes;
+    const cart = ensureCart(userId);
+    const { error, item, index: idx } = getItemByIndex(cart, index);
+    if (error) throw new Error(error);
+    item.quantidade = Math.max(0, Number(item.quantidade || 0) - 1);
+    item.total = Number(item.precoUnitario || 0) * item.quantidade;
+    
+    if (item.quantidade === 0) {
+      cart.splice(idx, 1);
+      return { removed: true };
     }
-  } catch (e) {
-    console.warn("Falha ao atualizar UI do carrinho:", e);
+    return item;
   }
-}
 
-/**
- * Aumenta a quantidade de um item no carrinho
- * @param {number} index - Índice do item no carrinho
- */
-export function aumentar(index) {
+  const req = userIdOrReq;
+  const res = indexOrRes;
   try {
-    const itens = carrinho.getItens();
-    if (!Array.isArray(itens) || index < 0 || index >= itens.length) {
-      console.warn("Índice inválido ao aumentar item:", index);
-      return;
-    }
-
-    carrinho.aumentar(index);
-
-    atualizarBadge();
-    atualizarUIcarrinho();
-    animarCarrinho();
+    const userId = req.usuario?.id || req.body.userId || "anon";
+    const index = req.params?.index ?? req.body?.index;
+    const result = diminuir(userId, index);
+    return res.json(result);
   } catch (err) {
-    console.error("Erro ao aumentar item do carrinho:", err);
-    mostrarToast("Erro ao atualizar quantidade", "erro");
+    return res.status(400).json({ erro: err.message });
   }
 }
 
-/**
- * Diminui a quantidade de um item no carrinho
- * @param {number} index - Índice do item no carrinho
- */
-export function diminuir(index) {
+export function remover(userIdOrReq, indexOrRes) {
+  if (typeof userIdOrReq !== "object" || !userIdOrReq?.headers) {
+    const userId = userIdOrReq;
+    const index = indexOrRes;
+    const cart = ensureCart(userId);
+    const { error, index: idx } = getItemByIndex(cart, index);
+    if (error) throw new Error(error);
+    cart.splice(idx, 1);
+    return { removed: true };
+  }
+
+  const req = userIdOrReq;
+  const res = indexOrRes;
   try {
-    const itens = carrinho.getItens();
-    if (!Array.isArray(itens) || index < 0 || index >= itens.length) {
-      console.warn("Índice inválido ao diminuir item:", index);
-      return;
-    }
-
-    carrinho.diminuir(index);
-
-    atualizarBadge();
-    atualizarUIcarrinho();
+    const userId = req.usuario?.id || req.body.userId || "anon";
+    const index = req.params?.index ?? req.body?.index;
+    const result = remover(userId, index);
+    return res.json(result);
   } catch (err) {
-    console.error("Erro ao diminuir item do carrinho:", err);
-    mostrarToast("Erro ao atualizar quantidade", "erro");
+    return res.status(400).json({ erro: err.message });
   }
 }
 
-/**
- * Remove um item do carrinho
- * @param {number} index - Índice do item no carrinho
- */
-export function remover(index) {
+export function limparCarrinho(userIdOrReq, resOptional) {
+  if (typeof userIdOrReq !== "object" || !userIdOrReq?.headers) {
+    const userId = userIdOrReq;
+    const id = String(userId || "anon");
+    carts.set(id, []);
+    return { ok: true };
+  }
+
+  const req = userIdOrReq;
+  const res = resOptional;
   try {
-    const itens = carrinho.getItens();
-    if (!Array.isArray(itens) || index < 0 || index >= itens.length) {
-      console.warn("Índice inválido ao remover item:", index);
-      return;
-    }
-
-    carrinho.remover(index);
-
-    atualizarBadge();
-    atualizarUIcarrinho();
-    mostrarToast("Item removido do carrinho");
+    const userId = req.usuario?.id || req.body.userId || "anon";
+    const result = limparCarrinho(userId);
+    return res.json(result);
   } catch (err) {
-    console.error("Erro ao remover item do carrinho:", err);
-    mostrarToast("Erro ao remover item", "erro");
+    return res.status(400).json({ erro: err.message });
   }
 }
 
-export function limparCarrinho() {
-  try {
-    carrinho.limpar();
-    atualizarBadge();
-    atualizarUIcarrinho();
-    mostrarToast("Carrinho limpo");
-  } catch (err) {
-    console.error("Erro ao limpar carrinho:", err);
-    mostrarToast("Erro ao limpar carrinho", "erro");
-  }
+export function obterTotal(userId) {
+  const cart = ensureCart(userId);
+  return cart.reduce((acc, itm) => acc + Number(itm.total || 0), 0);
 }
 
-/**
- * Retorna o total do carrinho
- * @returns {number} Total em reais
- */
-export function obterTotal() {
-  try {
-    return carrinho.getTotal();
-  } catch (err) {
-    console.error("Erro ao obter total do carrinho:", err);
-    return 0;
-  }
+export function getItens(userId) {
+  return ensureCart(userId);
 }
-
-/**
- * Retorna os itens do carrinho
- * @returns {Array} Array de itens
- */
-export function obterItens() {
-  try {
-    return carrinho.getItens();
-  } catch (err) {
-    console.error("Erro ao obter itens do carrinho:", err);
-    return [];
-  }
-}
-
-/**
- * Adiciona um item ao carrinho (wrapper)
- * @param {object} item - Item a adicionar
- */
-export function adicionarItem(item) {
-  try {
-    carrinho.adicionar(item);
-    atualizarBadge();
-    atualizarUIcarrinho();
-    mostrarToast(`"${item.nome}" adicionado ao carrinho`);
-    animarCarrinho();
-  } catch (err) {
-    console.error("Erro ao adicionar item ao carrinho:", err);
-    mostrarToast("Erro ao adicionar item", "erro");
-  }
-}
-
-window.aumentar = aumentar;
-window.diminuir = diminuir;
-window.remover = remover;
-window.limparCarrinho = limparCarrinho;
-window.obterTotal = obterTotal;
-window.obterItens = obterItens;
-window.adicionarItem = adicionarItem;
 
 export default {
+  adicionar,
   aumentar,
   diminuir,
   remover,
   limparCarrinho,
   obterTotal,
-  obterItens,
-  adicionarItem
+  getItens
 };
